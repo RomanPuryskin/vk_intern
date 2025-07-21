@@ -1,0 +1,9 @@
+CREATE TABLE IF NOT EXISTS advertisements (
+			id SERIAL PRIMARY KEY,
+			title VARCHAR(200) NOT NULL,
+			description VARCHAR(2000) NOT NULL,
+			price NUMERIC(10, 2) NOT NULL,
+			image_url TEXT NOT NULL,
+			login VARCHAR(100) REFERENCES users(login) ON DELETE CASCADE,
+			created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);

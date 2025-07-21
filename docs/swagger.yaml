@@ -1,0 +1,254 @@
+definitions:
+  github_com_vk_intern_internal_advertisements.Advertisement:
+    description: Модель описывает объявление для возврата при его создании
+    properties:
+      created_at:
+        example: "2023-05-15T10:00:00Z"
+        format: date-time
+        type: string
+      description:
+        type: string
+      image_url:
+        type: string
+      price:
+        type: number
+      title:
+        type: string
+      userlogin:
+        type: string
+    type: object
+  github_com_vk_intern_internal_advertisements.AdvertisementResponse:
+    description: Модель описывает ответ на получение объявления
+    properties:
+      created_at:
+        example: "2023-05-15T10:00:00Z"
+        format: date-time
+        type: string
+      description:
+        type: string
+      image_url:
+        type: string
+      ismine:
+        type: boolean
+      price:
+        type: number
+      title:
+        type: string
+      userlogin:
+        type: string
+    type: object
+  github_com_vk_intern_internal_advertisements.CreateAdvertisementRequest:
+    description: Модель описывает запрос на создание объявления
+    properties:
+      description:
+        type: string
+      image_url:
+        type: string
+      price:
+        type: number
+      title:
+        type: string
+      userLogin:
+        type: string
+    required:
+    - description
+    - image_url
+    - price
+    - title
+    type: object
+  github_com_vk_intern_internal_users.UserRegisterResponse:
+    description: Модель описывает ответ на успешную регистрацию
+    properties:
+      created_at:
+        example: "2023-05-15T10:00:00Z"
+        format: date-time
+        type: string
+      login:
+        type: string
+    type: object
+  github_com_vk_intern_internal_users.UserRequest:
+    description: Модель описывает запрос на регистрацию с логином и паролем
+    properties:
+      login:
+        type: string
+      password:
+        type: string
+    required:
+    - login
+    - password
+    type: object
+info:
+  contact: {}
+  description: API для тестового маркетплейса
+  title: marketplace API
+  version: "1.0"
+paths:
+  /advertisements:
+    get:
+      consumes:
+      - application/json
+      description: Возвращает список объявлений по параметрам фильтрации
+      parameters:
+      - default: 1
+        description: Номер страницы
+        in: query
+        name: page
+        type: integer
+      - default: 0
+        description: Минимальная цена
+        in: query
+        name: min_price
+        type: number
+      - default: 100000000
+        description: Максимальная цена
+        in: query
+        name: max_price
+        type: number
+      - default: 10
+        description: Лимит на странице
+        in: query
+        name: limit
+        type: integer
+      - default: '"created_at"'
+        description: Параметр для сортировки
+        in: query
+        name: order_by
+        type: string
+      - default: '"DESC"'
+        description: Вид сортировки
+        in: query
+        name: order
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/github_com_vk_intern_internal_advertisements.AdvertisementResponse'
+            type: array
+        "400":
+          description: '''error'': ''message'''
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: '''error'': ''message'''
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Показать список объявлений
+      tags:
+      - advertisements
+    post:
+      consumes:
+      - application/json
+      description: Создает объявление, только для авторизированных пользователей
+      parameters:
+      - description: Данные объявления
+        in: body
+        name: advertisementData
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_vk_intern_internal_advertisements.CreateAdvertisementRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/github_com_vk_intern_internal_advertisements.Advertisement'
+        "400":
+          description: '''error'': ''message'''
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: '''error'': ''unauthorized'''
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: '''error'': ''message'''
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Создание объявления
+      tags:
+      - advertisements
+  /login:
+    post:
+      consumes:
+      - application/json
+      description: Авторизирует зарегистрированного пользователя
+      parameters:
+      - description: Логин и пароль
+        in: body
+        name: loginData
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_vk_intern_internal_users.UserRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: token
+          schema:
+            type: string
+        "208":
+          description: already authorized
+          schema:
+            type: string
+        "400":
+          description: '''error'': ''message'''
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: '''error'': ''message'''
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Авторизация пользователя
+      tags:
+      - auth
+  /register:
+    post:
+      consumes:
+      - application/json
+      description: Регистрирует нового пользователя
+      parameters:
+      - description: Логин и пароль
+        in: body
+        name: registerData
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_vk_intern_internal_users.UserRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/github_com_vk_intern_internal_users.UserRegisterResponse'
+        "400":
+          description: '''error'': ''message'''
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: '''error'': ''message'''
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Регистрация пользователя
+      tags:
+      - auth
+swagger: "2.0"
